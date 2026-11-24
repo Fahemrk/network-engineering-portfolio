@@ -22,7 +22,7 @@ entry-level network roles (NOC / L1 network engineer).
 
 |---|---------|--------------|--------|
 
-| 01 | Small office network | VLANs, trunking, inter-VLAN routing, DHCP, NAT/PAT | Planned |
+| 01 | Small office network | VLANs, trunking, inter-VLAN routing, DHCP, NAT/PAT | Completed |
 
 | 02 | Routing | Static/default routes, OSPF | Planned |
 
