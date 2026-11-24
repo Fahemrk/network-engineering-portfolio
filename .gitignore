@@ -1,0 +1,12 @@
+# Windows OS files
+Thumbs.db
+Desktop.ini
+
+# Python (for future automation projects)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor files
+.vscode/
