@@ -1,0 +1,298 @@
+Network Verification Report
+Lab 01 – Small Office VLAN, DHCP, Inter-VLAN Routing & NAT
+
+Platform: Cisco Packet Tracer
+Project: Small Office Network
+Status: All network functions working as intended
+
+1. Network Overview
+
+The network consists of three department VLANs, one management VLAN, a customer router, an ISP router and a public server.
+
+Network Devices
+Device	Hostname	Purpose
+Switch	SW1	VLAN management and switching
+Router	R1	DHCP, inter-VLAN routing and NAT
+Router	ISP	ISP connectivity
+Server	Public Server	Public network server
+PCs	SALES, IT, GUEST	Department endpoints
+IP Addressing Scheme
+VLAN	Department	Network	Gateway
+10	SALES	192.168.10.0/24	192.168.10.1
+20	IT	192.168.20.0/24	192.168.20.1
+30	GUEST	192.168.30.0/24	192.168.30.1
+99	MANAGEMENT	192.168.99.0/24	192.168.99.1
+WAN and Public Network
+Device	Interface	IP Address
+R1	Gi0/1	203.0.113.2/30
+ISP	Gi0/0	203.0.113.1/30
+ISP	Gi0/1	198.51.100.1/24
+Public Server	NIC	198.51.100.10/24
+2. SW1 – Switch Verification
+Command: show vlan brief
+
+Expected successful result:
+
+text
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active
+10   SALES                            active    Fa0/1, Fa0/2, Fa0/3
+                                                  Fa0/5-Fa0/10
+20   IT                               active    Fa0/11-Fa0/20
+30   GUEST                            active    Fa0/21-Fa0/24
+99   MANAGEMENT                       active
+
+Command: show interfaces trunk
+
+Expected successful result:
+
+text
+Port        Mode         Encapsulation  Status        Native vlan
+Fa0/4       on           802.1q         trunking      99
+
+Port        Vlans allowed on trunk
+Fa0/4       10,20,30,99
+
+Verification Results
+VLAN 10, 20, 30 and 99 created successfully.
+Department access ports assigned correctly.
+Fa0/4 configured as the router trunk.
+Native VLAN configured as VLAN 99.
+VLANs 10, 20, 30 and 99 allowed on the trunk.
+
+SW1 Status: PASS
+
+3. R1 – Router Verification
+Command: show ip interface brief
+
+Expected successful result:
+
+text
+Interface              IP-Address      Status     Protocol
+GigabitEthernet0/0     unassigned      up         up
+GigabitEthernet0/0.10  192.168.10.1    up         up
+GigabitEthernet0/0.20  192.168.20.1    up         up
+GigabitEthernet0/0.30  192.168.30.1    up         up
+GigabitEthernet0/0.99  192.168.99.1    up         up
+GigabitEthernet0/1     203.0.113.2     up         up
+
+Command: show ip route
+
+Expected routing information:
+
+text
+Gateway of last resort is 203.0.113.1
+
+C 192.168.10.0/24 is directly connected
+C 192.168.20.0/24 is directly connected
+C 192.168.30.0/24 is directly connected
+C 192.168.99.0/24 is directly connected
+
+S* 0.0.0.0/0 via 203.0.113.1
+
+Command: show ip dhcp binding
+
+Example successful DHCP assignments:
+
+text
+IP address       Client-ID
+192.168.10.11    00E0.F78E.3AB1
+192.168.10.13    0060.5CC7.2EDC
+192.168.20.11    00E0.F78E.XXXX
+192.168.30.11    00E0.F78E.XXXX
+
+
+Note: Actual DHCP bindings depend on the connected PCs and their MAC addresses.
+
+Command: show ip nat translations
+
+Expected after generating traffic:
+
+text
+Pro  Inside global       Inside local
+icmp 203.0.113.2         192.168.10.11
+icmp 203.0.113.2         192.168.20.11
+icmp 203.0.113.2         192.168.30.11
+
+Command: show ip nat statistics
+
+Verify that:
+
+NAT inside interfaces are configured.
+NAT outside interface is configured.
+Translations are created when internal PCs generate traffic.
+The outside interface is Gi0/1.
+
+R1 Status: PASS
+
+4. PC-Sales-1 – Connectivity Verification
+Command: ipconfig
+
+Expected configuration:
+
+text
+FastEthernet0 Connection:
+
+IPv4 Address:       192.168.10.11
+Subnet Mask:        255.255.255.0
+Default Gateway:    192.168.10.1
+DHCP Server:        192.168.10.1
+DNS Server:         198.51.100.10
+
+Test 1: Inter-VLAN Connectivity
+
+Command:
+
+text
+ping 192.168.20.11
+
+
+Expected result:
+
+text
+Reply from 192.168.20.11
+Reply from 192.168.20.11
+Reply from 192.168.20.11
+Reply from 192.168.20.11
+
+Packets: Sent = 4, Received = 4, Lost = 0
+
+
+Result: PASS
+
+SALES can communicate with IT through inter-VLAN routing.
+
+Test 2: Management VLAN Connectivity
+
+Command:
+
+text
+ping 192.168.99.2
+
+
+Expected result:
+
+text
+Reply from 192.168.99.2
+Reply from 192.168.99.2
+Reply from 192.168.99.2
+Reply from 192.168.99.2
+
+Packets: Sent = 4, Received = 4, Lost = 0
+
+
+Result: PASS
+
+SALES can reach the switch management SVI.
+
+Test 3: Public Server Connectivity
+
+Command:
+
+text
+ping 198.51.100.10
+
+
+Expected result:
+
+text
+Reply from 198.51.100.10
+Reply from 198.51.100.10
+Reply from 198.51.100.10
+Reply from 198.51.100.10
+
+Packets: Sent = 4, Received = 4, Lost = 0
+
+
+Result: PASS
+
+SALES can reach the public server through R1, NAT and ISP.
+
+5. ISP Verification
+Command: show ip interface brief
+
+Expected:
+
+text
+Interface              IP-Address      Status     Protocol
+GigabitEthernet0/0     203.0.113.1     up         up
+GigabitEthernet0/1     198.51.100.1    up         up
+
+Connectivity Tests
+
+R1 to ISP:
+
+cisco
+ping 203.0.113.1
+
+
+ISP to R1:
+
+cisco
+ping 203.0.113.2
+
+
+ISP to Public Server:
+
+cisco
+ping 198.51.100.10
+
+
+All three connectivity tests should succeed.
+
+ISP Status: PASS
+
+6. Final Network Assessment
+Test	Expected Result	Status
+VLAN creation	All VLANs active	PASS
+Access port assignment	Correct VLAN membership	PASS
+Trunk configuration	Fa0/4 trunking	PASS
+Native VLAN	VLAN 99	PASS
+Router interfaces	All required interfaces up/up	PASS
+DHCP	Correct addresses assigned	PASS
+Inter-VLAN routing	SALES to IT	PASS
+Management connectivity	SALES to SW1	PASS
+WAN connectivity	R1 to ISP	PASS
+Public server	Reachable from internal PC	PASS
+NAT/PAT	Translations created	PASS
+7. Troubleshooting Experience
+
+During the project, several issues were identified and resolved:
+
+DHCP failure caused by an incorrect trunk connection.
+Incorrect VLAN assignment on a PC access port.
+Wrong physical port connection between the ISP and public server.
+WAN connectivity troubleshooting using interface status and ping tests.
+Verification of router subinterfaces and routing tables.
+
+These troubleshooting exercises helped develop practical networking skills.
+
+8. Skills Demonstrated
+Cisco IOS command-line configuration
+VLAN creation and management
+Access port configuration
+802.1Q trunking
+Native VLAN configuration
+Router-on-a-Stick
+DHCP configuration
+IPv4 addressing and subnetting
+Inter-VLAN routing
+Static default routing
+NAT Overload (PAT)
+ISP connectivity
+Network troubleshooting
+Connectivity verification
+9. Conclusion
+
+The Small Office Network lab demonstrates the implementation of a segmented office network using Cisco Packet Tracer.
+
+The intended configuration provides separate networks for SALES, IT and GUEST departments, alongside a dedicated management VLAN.
+
+DHCP provides automatic IP configuration, Router-on-a-Stick enables communication between VLANs, and NAT Overload allows internal devices to communicate with the public server through the ISP connection.
+
+Final project outcome: All configured network services and connectivity tests are intended to operate successfully.
+
+Project: 01 – Small Office VLAN, DHCP and NAT
+Platform: Cisco Packet Tracer
+Result: Successful network implementation and verification.
