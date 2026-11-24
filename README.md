@@ -44,9 +44,7 @@ entry-level network roles (NOC / L1 network engineer).
 
 Aspiring Network Engineer preparing for CCNA 200-301 and entry-level NOC / L1 network support roles.  
 
-\*\*Contact:\*\* \[LinkedIn](https://linkedin.com/in/your-profile) | your.email@example.com
-
-
+\*\*Contact:\*\* \[LinkedIn](https://www.linkedin.com/in/fahem-raseek-972b31254) | raseekfahem@gmail.com
 
 \## Notes on scope
 
