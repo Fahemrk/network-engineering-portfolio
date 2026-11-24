@@ -4,11 +4,11 @@
 
 Hands-on labs and tools built while preparing for CCNA 200-301 and
 
-entry-level network roles (NOC / L1 network support).
+entry-level network roles (NOC / L1 network engineer).
 
 
 
-\*\*Tools:\*\* Cisco Packet Tracer, Python, Wireshark  
+\*\*Tools:\*\* Cisco Packet Tracer, Wireshark  
 
 \*\*Status:\*\* CCNA in progress
 
